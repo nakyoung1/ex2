@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>투명 나침반</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      .compass-wrapper {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 120px;
+        height: 120px;
+        z-index: 9999;
+        pointer-events: none; /* 클릭 안 되게 */
+      }
+
+      .compass {
+        width: 100%;
+        height: 100%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        position: relative;
+        backdrop-filter: blur(6px);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .needle {
+        position: absolute;
+        width: 2px;
+        height: 50%;
+        background: red;
+        top: 0;
+        left: 50%;
+        transform-origin: bottom center;
+        transform: rotate(0deg);
+        transition: transform 0.1s linear;
+      }
+
+      .center-dot {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .north-label {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        text-shadow: 0 0 2px black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="compass-wrapper">
+      <div class="compass">
+        <div class="needle" id="needle"></div>
+        <div class="center-dot"></div>
+        <div class="north-label">N</div>
+      </div>
+    </div>
+
+    <script>
+      function updateNeedle(angle) {
+        const needle = document.getElementById("needle");
+        needle.style.transform = `rotate(${angle}deg)`;
+      }
+
+      function handleOrientation(event) {
+        const alpha = event.alpha;
+        if (alpha != null) {
+          updateNeedle(alpha);
+        }
+      }
+
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function"
+      ) {
+        DeviceOrientationEvent.requestPermission()
+          .then((response) => {
+            if (response === "granted") {
+              window.addEventListener(
+                "deviceorientation",
+                handleOrientation,
+                true
+              );
+            } else {
+              alert("나침반 권한이 거부되었습니다.");
+            }
+          })
+          .catch(console.error);
+      } else {
+        window.addEventListener("deviceorientation", handleOrientation, true);
+      }
+    </script>
+  </body>
+</html>
